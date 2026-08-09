@@ -184,6 +184,11 @@
     padding:26px; position:relative; transition:transform .2s, box-shadow .2s;
   }
   .sheet:hover{transform:translateY(-4px); box-shadow:6px 6px 0 var(--line);}
+  .sheet-img{
+    width:calc(100% + 52px); margin:-26px -26px 18px; height:170px; overflow:hidden;
+    background:var(--paper-2); border-bottom:1px solid var(--line);
+  }
+  .sheet-img img{width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.92);}
   .sheet-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px;}
   .sheet-tag{
     font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em;
@@ -394,6 +399,7 @@
     <div class="sheet-grid">
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/traffic-plan.jpg" alt="Tehran Traffic Plan Optimization" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">POLICY · MOBILITY</span><span class="sheet-no">SHEET 01</span></div>
         <h3>Tehran Traffic Plan Optimization</h3>
         <p>Strategic examination of Tehran's traffic management system and congestion-reduction policy.</p>
@@ -405,6 +411,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/metro-brt-accessibility.jpg" alt="Metro & BRT Accessibility Analysis" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">GIS · ACCESSIBILITY</span><span class="sheet-no">SHEET 02</span></div>
         <h3>Metro &amp; BRT Accessibility Analysis</h3>
         <p>GIS evaluation of public transport functional coverage against residential areas.</p>
@@ -416,6 +423,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/saretakht-analysis.jpg" alt="Saretakht Neighborhood Analysis" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">NEIGHBORHOOD ANALYSIS</span><span class="sheet-no">SHEET 03</span></div>
         <h3>Saretakht Neighborhood Analysis</h3>
         <p>Neighborhood-scale study of spatial structure, land use, and accessibility.</p>
@@ -427,6 +435,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/shush-square.jpg" alt="Shush Square Architectural Analysis" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">ARCHITECTURE · URBAN FORM</span><span class="sheet-no">SHEET 04</span></div>
         <h3>Shush Square — Architectural Analysis</h3>
         <p>Study of significant architectural elements and their relationship to public space.</p>
@@ -437,6 +446,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/urban-game-design.jpg" alt="Urban Environmental Game Design" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">DESIGN · INTERACTION</span><span class="sheet-no">SHEET 05</span></div>
         <h3>Urban Environmental Game Design</h3>
         <p>Two experimental games — <em>1336</em> and <em>Padarsooteh</em> — exploring how people perceive and interact with urban space.</p>
@@ -447,6 +457,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/studio-workshop.jpg" alt="Urban Design Studio Workshops" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">STUDIO WORK</span><span class="sheet-no">SHEET 06</span></div>
         <h3>Urban Design Studio Workshops</h3>
         <p>Academic design studio projects across multiple semesters, including Husseinabad land preparation and furniture design for the Kharazmi Faculty of Art lobby.</p>
