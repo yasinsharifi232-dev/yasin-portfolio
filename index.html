@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yasin Sharifi — Urban Planning &amp; Spatial Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EFE3;
+    --paper-2:#ECE6D5;
+    --ink:#1D2B2E;
+    --ink-soft:#4B5A57;
+    --pine:#33604F;
+    --pine-deep:#234238;
+    --ochre:#8A5A2B;
+    --survey:#C9A227;
+    --line:#C9C1AA;
+    --card:#FBF9F2;
+    --radius:2px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--survey); color:var(--ink);}
+
+  .contour-bg{
+    position:fixed; inset:0; z-index:-1; opacity:.35; pointer-events:none;
+  }
+
+  a{color:inherit;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 32px;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(243,239,227,.88);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+  }
+  .brand{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:18px;
+    letter-spacing:.02em;
+  }
+  .brand span{color:var(--pine);}
+  .navlinks{display:flex; gap:28px; font-size:13px;}
+  .navlinks a{
+    text-decoration:none; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.03em;
+    position:relative; padding-bottom:3px;
+    transition:color .2s;
+  }
+  .navlinks a:hover{color:var(--pine-deep);}
+  .navlinks a::after{
+    content:""; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--pine); transition:width .25s;
+  }
+  .navlinks a:hover::after{width:100%;}
+  @media (max-width:720px){ .navlinks{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:120px 0 90px;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .hero .wrap{position:relative; z-index:2;}
+  .coord-stamp{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:var(--pine-deep); border:1px solid var(--pine); border-radius:20px;
+    padding:5px 14px; margin-bottom:28px; letter-spacing:.04em;
+  }
+  .coord-stamp .dot{width:6px; height:6px; border-radius:50%; background:var(--survey);}
+  h1.name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(44px, 8vw, 84px);
+    line-height:.98;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  h1.name em{
+    font-style:normal; color:var(--pine);
+  }
+  .role-line{
+    margin-top:22px; font-family:'IBM Plex Mono', monospace;
+    font-size:15px; color:var(--ink-soft); letter-spacing:.02em;
+    max-width:640px;
+  }
+  .hero-desc{
+    margin-top:26px; font-size:17px; max-width:560px; color:var(--ink-soft);
+  }
+  .hero-cta{
+    margin-top:38px; display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:13px;
+    padding:12px 20px; border-radius:2px; text-decoration:none;
+    letter-spacing:.03em; transition:transform .18s, box-shadow .18s;
+    border:1px solid var(--ink);
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-solid{background:var(--pine-deep); border-color:var(--pine-deep); color:#F7F4EA;}
+  .btn-solid:hover{box-shadow:4px 4px 0 var(--survey);}
+  .btn-outline{background:transparent; color:var(--ink);}
+  .btn-outline:hover{box-shadow:4px 4px 0 var(--ink);}
+
+  .compass{
+    position:absolute; top:60px; right:32px; width:96px; height:96px;
+    opacity:.9; animation:sway 7s ease-in-out infinite;
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-3deg);}
+    50%{transform:rotate(3deg);}
+  }
+  @media (max-width:720px){ .compass{display:none;} }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section{padding:84px 0; border-bottom:1px solid var(--line);}
+  .section-head{
+    display:flex; align-items:baseline; gap:16px; margin-bottom:44px;
+    flex-wrap:wrap;
+  }
+  .section-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:var(--ochre); border:1px solid var(--ochre); padding:3px 10px;
+    letter-spacing:.06em; border-radius:20px; white-space:nowrap;
+  }
+  .section-title{
+    font-family:'Space Grotesk', sans-serif; font-weight:600;
+    font-size:clamp(26px,4vw,36px);
+  }
+  .section-sub{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);
+    margin-left:auto;
+  }
+
+  /* ---------- LEGEND / SKILLS ---------- */
+  .legend-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:1px; background:var(--line); border:1px solid var(--line);
+  }
+  .legend-cell{
+    background:var(--card); padding:26px 24px;
+  }
+  .legend-cell h4{
+    font-family:'Space Grotesk', sans-serif; font-size:15px; margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .swatch{width:16px; height:16px; flex:none; border-radius:2px;}
+  .sw-1{background:var(--pine);}
+  .sw-2{background:var(--ochre);}
+  .sw-3{background:var(--survey);}
+  .sw-4{background:var(--ink);}
+  .legend-cell ul{list-style:none; font-size:13.5px; color:var(--ink-soft);}
+  .legend-cell li{
+    padding:5px 0; border-top:1px dashed var(--line);
+  }
+  .legend-cell li:first-child{border-top:none;}
+
+  /* ---------- PROJECTS ---------- */
+  .sheet-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:22px;
+  }
+  .sheet{
+    background:var(--card); border:1px solid var(--line);
+    padding:26px; position:relative; transition:transform .2s, box-shadow .2s;
+  }
+  .sheet:hover{transform:translateY(-4px); box-shadow:6px 6px 0 var(--line);}
+  .sheet-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px;}
+  .sheet-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em;
+    color:var(--pine-deep); background:rgba(51,96,79,.1); padding:3px 8px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .sheet-no{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+  .sheet h3{
+    font-family:'Space Grotesk', sans-serif; font-size:19px; margin-bottom:10px; line-height:1.25;
+  }
+  .sheet p{font-size:13.8px; color:var(--ink-soft); margin-bottom:14px;}
+  .sheet ul{list-style:none; font-size:13px; color:var(--ink);}
+  .sheet li{padding-left:16px; position:relative; margin-bottom:6px;}
+  .sheet li::before{
+    content:"—"; position:absolute; left:0; color:var(--ochre);
+  }
+
+  /* ---------- FIELD NOTES ---------- */
+  .notes{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:760px){ .notes{grid-template-columns:1fr;} }
+  .note{
+    background:var(--card); border-left:3px solid var(--pine);
+    padding:28px 26px; border:1px solid var(--line); border-left-width:3px; border-left-color:var(--pine);
+  }
+  .note .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .pill{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.03em;
+    border:1px solid var(--line); padding:3px 9px; border-radius:20px; color:var(--ink-soft);
+  }
+  .note h3{font-family:'Space Grotesk', sans-serif; font-size:18px; margin-bottom:6px;}
+  .note .role{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ochre); margin-bottom:12px; display:block;}
+  .note p{font-size:13.8px; color:var(--ink-soft);}
+
+  /* ---------- LIVE DEMO (Urban Planning Copilot) ---------- */
+  .demo-panel{
+    background:var(--pine-deep); color:#F1EEE1; padding:40px; border-radius:2px;
+    position:relative; overflow:hidden;
+  }
+  .demo-panel::before{
+    content:""; position:absolute; inset:0; opacity:.06;
+    background-image:radial-gradient(circle, #fff 1px, transparent 1px);
+    background-size:18px 18px;
+  }
+  .demo-inner{position:relative; z-index:2;}
+  .demo-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:10px;}
+  .demo-top h3{font-family:'Space Grotesk', sans-serif; font-size:22px;}
+  .status-dot{
+    display:inline-flex; align-items:center; gap:7px; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    color:#C9E3D6;
+  }
+  .status-dot i{width:7px; height:7px; border-radius:50%; background:#7BD4A5; display:inline-block; animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.3;}}
+  .demo-desc{font-size:13.8px; color:#CFCBBB; max-width:560px; margin-bottom:24px;}
+  .geo-form{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+  .geo-form input{
+    flex:1; min-width:220px; padding:13px 16px; border:1px solid #4B7061; background:#1B382E;
+    color:#F1EEE1; font-family:'IBM Plex Mono', monospace; font-size:13px; border-radius:2px; outline:none;
+  }
+  .geo-form input::placeholder{color:#83A296;}
+  .geo-form input:focus{border-color:var(--survey);}
+  .geo-form button{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:.03em;
+    background:var(--survey); border:1px solid var(--survey); color:#1D2B2E; padding:13px 20px;
+    border-radius:2px; cursor:pointer; transition:transform .15s;
+  }
+  .geo-form button:hover{transform:translateY(-2px);}
+  .geo-form button:disabled{opacity:.5; cursor:progress;}
+  .geo-results{display:flex; flex-direction:column; gap:8px; min-height:24px;}
+  .geo-result{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; background:#1B382E;
+    border:1px solid #375B4C; padding:12px 14px; border-radius:2px; display:flex;
+    justify-content:space-between; gap:14px; flex-wrap:wrap; color:#E4E1D2;
+  }
+  .geo-result .name{color:#F1EEE1;}
+  .geo-result .coords{color:#7BD4A5; white-space:nowrap;}
+  .geo-hint{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#83A296;}
+  .repo-note{margin-top:22px; font-size:12.5px; color:#A9C3B8; font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------- CONTACT / TITLE BLOCK ---------- */
+  footer{padding:70px 0 0;}
+  .titleblock{
+    border:1px solid var(--ink); background:var(--card);
+  }
+  .tb-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:26px 32px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:14px;
+  }
+  .tb-head h2{font-family:'Space Grotesk', sans-serif; font-size:28px;}
+  .tb-head p{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft); margin-top:6px;}
+  .tb-grid{
+    display:grid; grid-template-columns:repeat(4,1fr);
+  }
+  @media (max-width:760px){ .tb-grid{grid-template-columns:repeat(2,1fr);} }
+  .tb-cell{
+    padding:20px 24px; border-top:1px solid var(--line); border-left:1px solid var(--line);
+  }
+  .tb-cell:nth-child(1){border-left:none;}
+  @media (max-width:760px){ .tb-cell:nth-child(3){border-left:none;} }
+  .tb-label{font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); letter-spacing:.06em; margin-bottom:8px;}
+  .tb-value{font-family:'Space Grotesk', sans-serif; font-size:14px;}
+  .tb-value a{text-decoration:none; border-bottom:1px solid var(--pine);}
+  .foot-strip{
+    text-align:center; padding:26px 0 40px; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; color:var(--ink-soft); letter-spacing:.03em;
+  }
+</style>
+</head>
+<body>
+
+<svg class="contour-bg" viewBox="0 0 1200 1400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin slice">
+  <g fill="none" stroke="#33604F" stroke-width="1">
+    <path d="M-50 120 C 200 60, 400 220, 650 140 S 1100 60, 1300 160" opacity=".5"/>
+    <path d="M-50 200 C 220 140, 420 300, 660 220 S 1080 140, 1300 240" opacity=".4"/>
+    <path d="M-50 280 C 240 220, 440 380, 670 300 S 1060 220, 1300 320" opacity=".3"/>
+    <path d="M-50 900 C 220 840, 460 1020, 700 940 S 1080 840, 1300 960" opacity=".35"/>
+    <path d="M-50 980 C 240 920, 480 1100, 720 1020 S 1060 920, 1300 1040" opacity=".28"/>
+    <path d="M-50 1060 C 260 1000, 500 1180, 740 1100 S 1040 1000, 1300 1120" opacity=".2"/>
+  </g>
+</svg>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">YASIN <span>SHARIFI</span></div>
+    <div class="navlinks">
+      <a href="#legend">LEGEND</a>
+      <a href="#projects">SITE INDEX</a>
+      <a href="#notes">FIELD NOTES</a>
+      <a href="#demo">COPILOT</a>
+      <a href="#contact">COORDINATES</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <svg class="compass" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#1D2B2E" stroke-width="1.2"/>
+    <polygon points="50,10 58,50 50,46 42,50" fill="#33604F"/>
+    <polygon points="50,90 58,50 50,54 42,50" fill="#1D2B2E"/>
+    <text x="50" y="22" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#1D2B2E">N</text>
+  </svg>
+  <div class="wrap">
+    <div class="coord-stamp"><span class="dot"></span>35.7219° N, 51.3347° E — TEHRAN, IRAN</div>
+    <h1 class="name">Reading the city<br>as <em>spatial data.</em></h1>
+    <p class="role-line">URBAN PLANNING · URBAN DESIGN · GIS &amp; SPATIAL ANALYSIS · URBAN RESEARCH</p>
+    <p class="hero-desc">B.Sc. Urban Planning student at Kharazmi University. I work across accessibility analysis, transportation planning, and evidence-based research — and I'm teaching myself to build the small tools that make that work faster.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-solid">Survey the projects ↓</a>
+      <a href="mailto:yasinsharifi232@gmail.com" class="btn btn-outline">Get in touch</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="legend">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">01 / LEGEND</span>
+      <h2 class="section-title">How to read this map</h2>
+      <span class="section-sub mono">SKILLS &amp; TOOLING</span>
+    </div>
+    <div class="legend-grid">
+      <div class="legend-cell">
+        <h4><span class="swatch sw-1"></span>Planning &amp; Design</h4>
+        <ul>
+          <li>Urban &amp; Strategic Planning</li>
+          <li>Urban Design · Urban Regeneration</li>
+          <li>Transportation Planning · Walkability</li>
+          <li>Nature-Based Solutions</li>
+        </ul>
+      </div>
+      <div class="legend-cell">
+        <h4><span class="swatch sw-2"></span>GIS &amp; Spatial Analysis</h4>
+        <ul>
+          <li>Accessibility &amp; Coverage Analysis</li>
+          <li>Functional Radius Mapping</li>
+          <li>Thematic Mapping</li>
+          <li>Spatial Data Visualization</li>
+        </ul>
+      </div>
+      <div class="legend-cell">
+        <h4><span class="swatch sw-3"></span>Research</h4>
+        <ul>
+          <li>Mixed-Methods Research</li>
+          <li>Inductive Thematic Analysis</li>
+          <li>Survey Design · Statistical Analysis</li>
+          <li>Academic Writing</li>
+        </ul>
+      </div>
+      <div class="legend-cell">
+        <h4><span class="swatch sw-4"></span>Software</h4>
+        <ul>
+          <li>AutoCAD · CityEngine</li>
+          <li>Adobe Photoshop</li>
+          <li>QGIS-style spatial tools</li>
+          <li>Python (learning — see Copilot)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">02 / SITE INDEX</span>
+      <h2 class="section-title">Selected projects</h2>
+      <span class="section-sub mono">SCALE VARIES</span>
+    </div>
+    <div class="sheet-grid">
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">POLICY · MOBILITY</span><span class="sheet-no">SHEET 01</span></div>
+        <h3>Tehran Traffic Plan Optimization</h3>
+        <p>Strategic examination of Tehran's traffic management system and congestion-reduction policy.</p>
+        <ul>
+          <li>Analyzed transportation demand &amp; congestion drivers</li>
+          <li>Evaluated pricing mechanisms &amp; policy interventions</li>
+          <li>Proposed sustainable mobility strategies</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">GIS · ACCESSIBILITY</span><span class="sheet-no">SHEET 02</span></div>
+        <h3>Metro &amp; BRT Accessibility Analysis</h3>
+        <p>GIS evaluation of public transport functional coverage against residential areas.</p>
+        <ul>
+          <li>600m &amp; 800m functional radius mapping</li>
+          <li>Metro + BRT coverage overlay</li>
+          <li>Service-gap identification</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">NEIGHBORHOOD ANALYSIS</span><span class="sheet-no">SHEET 03</span></div>
+        <h3>Saretakht Neighborhood Analysis</h3>
+        <p>Neighborhood-scale study of spatial structure, land use, and accessibility.</p>
+        <ul>
+          <li>Land-use &amp; functional mapping</li>
+          <li>Accessibility &amp; urban-function analysis</li>
+          <li>Planning-ready analytical outputs</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">ARCHITECTURE · URBAN FORM</span><span class="sheet-no">SHEET 04</span></div>
+        <h3>Shush Square — Architectural Analysis</h3>
+        <p>Study of significant architectural elements and their relationship to public space.</p>
+        <ul>
+          <li>Built-form &amp; urban-identity analysis</li>
+          <li>Public-space characterization</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">DESIGN · INTERACTION</span><span class="sheet-no">SHEET 05</span></div>
+        <h3>Urban Environmental Game Design</h3>
+        <p>Two experimental games — <em>1336</em> and <em>Padarsooteh</em> — exploring how people perceive and interact with urban space.</p>
+        <ul>
+          <li>Environmental-perception mechanics</li>
+          <li>Space-as-interaction prototyping</li>
+        </ul>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-top"><span class="sheet-tag">STUDIO WORK</span><span class="sheet-no">SHEET 06</span></div>
+        <h3>Urban Design Studio Workshops</h3>
+        <p>Academic design studio projects across multiple semesters, including Husseinabad land preparation and furniture design for the Kharazmi Faculty of Art lobby.</p>
+        <ul>
+          <li>Spatial &amp; functional analysis boards</li>
+          <li>Final planning / design presentation sheets</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="notes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">03 / FIELD NOTES</span>
+      <h2 class="section-title">Research</h2>
+      <span class="section-sub mono">CO-AUTHORED</span>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <div class="tagrow">
+          <span class="pill">PSS-10</span>
+          <span class="pill">COHEN'S D</span>
+          <span class="pill">PRE/POST DESIGN</span>
+        </div>
+        <h3>Biophilic Design of Urban Pedestrian Streets for Reducing Citizens' Stress</h3>
+        <span class="role">Case study: Ostad Shahriar Pedestrian Street, Tehran — Researcher / Co-author</span>
+        <p>A pre-test/post-test study of biophilic pedestrian environments and perceived stress, measured with the Perceived Stress Scale and read through Attention Restoration Theory and Stress Reduction Theory.</p>
+      </div>
+      <div class="note">
+        <div class="tagrow">
+          <span class="pill">MIXED METHODS</span>
+          <span class="pill">THEMATIC ANALYSIS</span>
+        </div>
+        <h3>Evaluation of Urban Management Performance of Tehran Municipality</h3>
+        <span class="role">From citizens' perspective — Researcher / Co-author</span>
+        <p>Combined quantitative satisfaction scoring with inductive thematic analysis to surface governance issues in transportation, infrastructure, transparency, and resource prioritization — closing with policy-oriented recommendations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="demo" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">04 / IN PROGRESS</span>
+      <h2 class="section-title">Urban Planning Copilot</h2>
+      <span class="section-sub mono">ACTIVELY BUILT</span>
+    </div>
+    <div class="demo-panel">
+      <div class="demo-inner">
+        <div class="demo-top">
+          <h3>Place → Coordinates</h3>
+          <span class="status-dot"><i></i>LIVE DEMO</span>
+        </div>
+        <p class="demo-desc">A small Python tool I'm building and steadily improving: give it a place name, it geocodes it and returns latitude/longitude. This box calls the same public geocoding API my script uses — type a place below.</p>
+        <form class="geo-form" id="geoForm">
+          <input type="text" id="geoInput" class="mono" placeholder="e.g. Valiasr Square, Tehran" autocomplete="off">
+          <button type="submit" id="geoBtn">Locate</button>
+        </form>
+        <div class="geo-results" id="geoResults">
+          <span class="geo-hint">→ results will appear here</span>
+        </div>
+        <p class="repo-note">main.py — takes a place name, queries OpenStreetMap's Nominatim API, and returns name / latitude / longitude. Next up: batch lookups and exporting results straight to GIS-ready formats.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="titleblock">
+      <div class="tb-head">
+        <div>
+          <h2>Let's talk about a project.</h2>
+          <p>Open to research assistance, GIS analysis, and junior planning roles.</p>
+        </div>
+        <a href="mailto:yasinsharifi232@gmail.com" class="btn btn-solid">yasinsharifi232@gmail.com</a>
+      </div>
+      <div class="tb-grid">
+        <div class="tb-cell">
+          <div class="tb-label">DRAWN BY</div>
+          <div class="tb-value">Yasin Sharifi</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">LOCATION</div>
+          <div class="tb-value">Tehran, Iran</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">LINKEDIN</div>
+          <div class="tb-value">[Add LinkedIn]</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">STATUS</div>
+          <div class="tb-value">B.Sc. Urban Planning, in progress</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-strip">DRAFTED WITH CLAUDE · REV. 2026 · SCALE N.T.S.</div>
+  </div>
+</footer>
+
+<script>
+  const form = document.getElementById('geoForm');
+  const input = document.getElementById('geoInput');
+  const results = document.getElementById('geoResults');
+  const btn = document.getElementById('geoBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if(!q) return;
+    btn.disabled = true;
+    btn.textContent = 'Locating…';
+    results.innerHTML = '<span class="geo-hint">→ querying Nominatim…</span>';
+    try{
+      const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=4&q=' + encodeURIComponent(q);
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const data = await res.json();
+      if(!data || data.length === 0){
+        results.innerHTML = '<span class="geo-hint">→ location not found. try a broader search.</span>';
+      } else {
+        results.innerHTML = '';
+        data.forEach(place => {
+          const row = document.createElement('div');
+          row.className = 'geo-result';
+          const lat = parseFloat(place.lat).toFixed(4);
+          const lon = parseFloat(place.lon).toFixed(4);
+          row.innerHTML = '<span class="name">' + place.display_name + '</span><span class="coords">' + lat + ', ' + lon + '</span>';
+          results.appendChild(row);
+        });
+      }
+    } catch(err){
+      results.innerHTML = '<span class="geo-hint">→ lookup failed — the public API may be rate-limiting. try again shortly.</span>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Locate';
+    }
+  });
+</script>
+
+</body>
+</html>
