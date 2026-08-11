@@ -185,11 +185,40 @@
   }
   .sheet:hover{transform:translateY(-4px); box-shadow:6px 6px 0 var(--line);}
   .sheet-img{
-    width:calc(100% + 52px); margin:-26px -26px 18px; height:190px; overflow:hidden;
+    width:calc(100% + 52px); margin:-26px -26px 18px; aspect-ratio:1/1; overflow:hidden;
     background:var(--ink); border-bottom:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
+    display:flex; align-items:center; justify-content:center; cursor:zoom-in;
+    position:relative;
   }
   .sheet-img img{width:100%; height:100%; object-fit:contain; display:block; filter:saturate(.92);}
+  .sheet-img::after{
+    content:"⤢ view full size"; position:absolute; bottom:8px; right:10px;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; color:#E4E1D2;
+    background:rgba(0,0,0,.45); padding:3px 8px; border-radius:20px; letter-spacing:.02em;
+    opacity:0; transition:opacity .2s;
+  }
+  .sheet-img:hover::after{opacity:1;}
+
+  .lightbox{
+    display:none; position:fixed; inset:0; z-index:100;
+    background:rgba(20,24,22,.94); backdrop-filter:blur(3px);
+    align-items:center; justify-content:center; padding:40px; cursor:zoom-out;
+  }
+  .lightbox.active{display:flex;}
+  .lightbox img{
+    max-width:90vw; max-height:86vh; object-fit:contain; border:1px solid #3B6E5E;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+  }
+  .lightbox-caption{
+    position:absolute; bottom:28px; left:0; right:0; text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:#E4E1D2; letter-spacing:.02em;
+  }
+  .lightbox-close{
+    position:absolute; top:24px; right:32px; font-family:'IBM Plex Mono', monospace;
+    font-size:13px; color:#F1EEE1; background:rgba(255,255,255,.08); border:1px solid #4B7061;
+    padding:8px 16px; border-radius:2px; cursor:pointer; letter-spacing:.03em;
+  }
+  .lightbox-close:hover{background:rgba(255,255,255,.16);}
   .sheet-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px;}
   .sheet-tag{
     font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em;
@@ -533,6 +562,12 @@
         <div class="sheet-top"><span class="sheet-tag">STUDIO WORK</span><span class="sheet-no">SHEET 07</span></div>
         <h3>Urban Design Studio Workshops</h3>
         <p>Academic design studio projects across multiple semesters, including furniture design for the Kharazmi Faculty of Art lobby.</p>
+        <ul>
+          <li>Spatial &amp; functional analysis boards</li>
+          <li>Final planning / design presentation sheets</li>
+        </ul>
+      </div>
+
       <div class="sheet">
         <div class="sheet-img"><img src="images/haram-street.png" alt="Environmental Psychology Analysis — Haram Street" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">COURSE PROJECT · PSYCHOLOGY</span><span class="sheet-no">SHEET 08</span></div>
@@ -674,6 +709,12 @@
   </div>
 </footer>
 
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-close" id="lightboxClose">✕ CLOSE</div>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
 <script>
   const form = document.getElementById('geoForm');
   const input = document.getElementById('geoInput');
@@ -711,6 +752,31 @@
       btn.textContent = 'Locate';
     }
   });
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxClose = document.getElementById('lightboxClose');
+
+  function openLightbox(src, caption){
+    lightboxImg.src = src;
+    lightboxCaption.textContent = caption || '';
+    lightbox.classList.add('active');
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('active');
+    lightboxImg.src = '';
+  }
+
+  document.querySelectorAll('.sheet-img img').forEach(img => {
+    img.parentElement.addEventListener('click', () => {
+      if (img.getAttribute('src')) openLightbox(img.src, img.alt);
+    });
+  });
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 </script>
 
 </body>
