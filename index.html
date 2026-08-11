@@ -185,10 +185,11 @@
   }
   .sheet:hover{transform:translateY(-4px); box-shadow:6px 6px 0 var(--line);}
   .sheet-img{
-    width:calc(100% + 52px); margin:-26px -26px 18px; height:170px; overflow:hidden;
-    background:var(--paper-2); border-bottom:1px solid var(--line);
+    width:calc(100% + 52px); margin:-26px -26px 18px; height:190px; overflow:hidden;
+    background:var(--ink); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
   }
-  .sheet-img img{width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.92);}
+  .sheet-img img{width:100%; height:100%; object-fit:contain; display:block; filter:saturate(.92);}
   .sheet-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px;}
   .sheet-tag{
     font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em;
@@ -506,6 +507,7 @@
       </div>
 
       <div class="sheet">
+        <div class="sheet-img"><img src="images/husseinabad.png" alt="Land Preparation — Husseinabad, District 4" onerror="this.closest('.sheet-img').style.display='none'"></div>
         <div class="sheet-top"><span class="sheet-tag">PAID · FACULTY SUPERVISED</span><span class="sheet-no">SHEET 05</span></div>
         <h3>Land Preparation — Husseinabad, District 4</h3>
         <p>Full land-preparation report and site-allocation plan, delivered to Kharazmi University and Tehran Municipality.</p>
@@ -678,4 +680,3 @@
 
 </body>
 </html>
-
