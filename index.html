@@ -416,7 +416,7 @@
         <ul>
           <li>AutoCAD · CityEngine</li>
           <li>Adobe Photoshop</li>
-          <li>GIS-style spatial tools</li>
+          <li>QGIS-style spatial tools</li>
           <li>Python (learning — see Copilot)</li>
         </ul>
       </div>
@@ -477,10 +477,10 @@
       </div>
     </div>
     <p style="margin-top:24px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); font-style:italic;">
-      Housing Studio — Discussions extended to underground urban policy and Tehran’s emerging TOD framework, connecting coursework with current urban planning practice.
+      Aside — one term's studio instructor also served as Tehran Municipality's Deputy for Urban Planning & Architecture; class discussions with him regularly touched on underground urban space policy and Tehran's emerging TOD framework.
     </p>
     <p style="margin-top:16px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); font-style:italic;">
-      Community engagement — founded and coordinated Sharkopolo, a series of guided urban walks through historic Tehran neighborhoods (Tajrish, Laleh Zaar, Si Tir St.). Organized tours engaging 20–80 participants through 2023–2024, building community engagement with Tehran's urban fabric and neighborhood history within the university and broader public.
+      Community engagement — founded and coordinated Sharkopolo, a series of guided urban walks through historic Tehran neighborhoods (Tajrish, Laleh Zaar, Si-Meter Passage from Farmanfarma Garden to Tehran Bazaar &amp; Zaman Museum). Organized tours engaging 20–80 participants through 2023–2024, building community engagement with Tehran's urban fabric and neighborhood history within the university and broader public.
     </p>
   </div>
 </section>
@@ -688,7 +688,7 @@
           <h3>Place → Coordinates</h3>
           <span class="status-dot"><i></i>LIVE DEMO</span>
         </div>
-        <p class="demo-desc">A small Python tool I'm building and steadily improving: give it a place name, it geocodes it and returns latitude/longitude. This box calls the same public geocoding API my script uses — type a place below.</p>
+        <p class="demo-desc">A small Python tool I'm building and steadily improving: give it a place name, it geocodes it, matches against current/alternative/historical names, scores candidates, and de-duplicates overlapping OSM results. This box runs the same matching &amp; scoring engine as my script, live in your browser — type a place below.</p>
         <form class="geo-form" id="geoForm">
           <input type="text" id="geoInput" class="mono" placeholder="e.g. Valiasr Square, Tehran" autocomplete="off">
           <button type="submit" id="geoBtn">Locate</button>
@@ -696,7 +696,7 @@
         <div class="geo-results" id="geoResults">
           <span class="geo-hint">→ results will appear here</span>
         </div>
-        <p class="repo-note">main.py — takes a place name, queries OpenStreetMap's Nominatim API, and returns name / latitude / longitude. Next up: batch lookups and exporting results straight to GIS-ready formats.</p>
+        <p class="repo-note">main.py — queries OpenStreetMap's Nominatim API, matches the query against current/alt/old/historical names, scores each candidate, and groups duplicate OSM objects into one place. Next up: batch lookups and exporting results straight to GIS-ready formats.</p>
       </div>
     </div>
   </div>
@@ -747,27 +747,131 @@
   const results = document.getElementById('geoResults');
   const btn = document.getElementById('geoBtn');
 
+  // ===== Ported from main.py: 1. NAME MATCHING =====
+  function findNameMatches(place, result) {
+    const matches = [];
+    const query = place.trim().toLowerCase();
+    const namedetails = result.namedetails || {};
+
+    const check = (rawVal, typeExact, typePartial) => {
+      if (!rawVal) return;
+      const val = String(rawVal).trim().toLowerCase();
+      if (query === val) matches.push({ type: typeExact, value: rawVal });
+      else if (val.includes(query)) matches.push({ type: typePartial, value: rawVal });
+    };
+
+    check(namedetails['name'], 'current_name', 'current_name_partial');
+    check(namedetails['alt_name'], 'alternative_name', 'alternative_name_partial');
+    check(namedetails['old_name'], 'old_name', 'old_name_partial');
+
+    Object.keys(namedetails).forEach(key => {
+      if (!key.startsWith('old_name:')) return;
+      check(namedetails[key], 'historical_name', 'historical_name_partial');
+    });
+
+    return matches;
+  }
+
+  // ===== Ported from main.py: 2. CANDIDATE RANKING =====
+  function calculateCandidateScore(place, result) {
+    let score = 0;
+    const matches = findNameMatches(place, result);
+    const types = matches.map(m => m.type);
+
+    if (types.includes('current_name')) score += 50;
+    else if (types.includes('alternative_name')) score += 45;
+    else if (types.includes('old_name')) score += 40;
+    else if (types.includes('historical_name')) score += 35;
+    else if (matches.length) score += 20;
+
+    const resultType = result.type || '';
+    if (resultType === 'square') score += 10;
+    else if (['city','town','village','suburb'].includes(resultType)) score += 5;
+
+    const importance = parseFloat(result.importance) || 0;
+    if (importance) score += importance * 10;
+
+    const placeRank = parseFloat(result.place_rank) || 0;
+    if (placeRank) score += placeRank / 10;
+
+    return score;
+  }
+
+  // ===== Ported from main.py: 3. HAVERSINE DISTANCE =====
+  function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const toRad = d => d * Math.PI / 180;
+    lat1 = toRad(parseFloat(lat1)); lon1 = toRad(parseFloat(lon1));
+    lat2 = toRad(parseFloat(lat2)); lon2 = toRad(parseFloat(lon2));
+    const dLat = lat2 - lat1, dLon = lon2 - lon1;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  // ===== Ported from main.py: 4. SAME LOCATION DETECTION =====
+  function areSameLocation(a, b, thresholdMeters=50) {
+    try {
+      const d = calculateDistanceMeters(a.lat, a.lon, b.lat, b.lon);
+      return d <= thresholdMeters;
+    } catch(e) { return false; }
+  }
+
+  // ===== Ported from main.py: 5. GROUP DUPLICATE RESULTS =====
+  function groupDuplicateResults(scoredResults, thresholdMeters=50) {
+    const groups = [];
+    scoredResults.forEach(([score, result]) => {
+      let placed = false;
+      for (const group of groups) {
+        if (areSameLocation(group.representative, result, thresholdMeters)) {
+          group.members.push([score, result]);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) groups.push({ representative: result, members: [[score, result]] });
+    });
+    return groups;
+  }
+
+  // ===== Ported from main.py: 6. SELECT BEST REPRESENTATIVE =====
+  function selectGroupRepresentative(group) {
+    return group.members.reduce((best, item) => item[0] > best[0] ? item : best, group.members[0]);
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const q = input.value.trim();
     if(!q) return;
     btn.disabled = true;
     btn.textContent = 'Locating…';
-    results.innerHTML = '<span class="geo-hint">→ querying Nominatim…</span>';
+    results.innerHTML = '<span class="geo-hint">→ querying Nominatim, scoring & de-duplicating…</span>';
     try{
-      const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=4&q=' + encodeURIComponent(q);
+      const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&q=' + encodeURIComponent(q);
       const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       if(!data || data.length === 0){
         results.innerHTML = '<span class="geo-hint">→ location not found. try a broader search.</span>';
       } else {
+        const scored = data.map(r => [calculateCandidateScore(q, r), r]);
+        const groups = groupDuplicateResults(scored);
+        groups.forEach(g => { g.best = selectGroupRepresentative(g); });
+        groups.sort((a, b) => b.best[0] - a.best[0]);
+
         results.innerHTML = '';
-        data.forEach(place => {
-          const row = document.createElement('div');
-          row.className = 'geo-result';
+        groups.slice(0, 5).forEach(g => {
+          const [score, place] = g.best;
+          const matches = findNameMatches(q, place);
           const lat = parseFloat(place.lat).toFixed(4);
           const lon = parseFloat(place.lon).toFixed(4);
-          row.innerHTML = '<span class="name">' + place.display_name + '</span><span class="coords">' + lat + ', ' + lon + '</span>';
+          const row = document.createElement('div');
+          row.className = 'geo-result';
+          const matchNote = matches.length
+            ? matches[0].type.replace(/_/g, ' ')
+            : 'fuzzy match';
+          const relatedNote = g.members.length > 1 ? ` · ${g.members.length} related OSM objects merged` : '';
+          row.innerHTML =
+            '<span class="name">' + place.display_name + '</span>' +
+            '<span class="coords">' + lat + ', ' + lon + ' · score ' + score.toFixed(1) + ' · ' + matchNote + relatedNote + '</span>';
           results.appendChild(row);
         });
       }
