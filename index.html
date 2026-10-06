@@ -331,7 +331,12 @@
 
   /* Copilot case study: scoped additions using the existing sheet design. */
   #urban-planning-copilot{scroll-margin-top:84px;}
-  .copilot-sheet .sheet-img{aspect-ratio:16/9; background:var(--paper-2);}
+  #demo{scroll-margin-top:84px;}
+  .copilot-intro{max-width:760px; color:var(--ink-soft); margin-bottom:26px; font-size:15px;}
+  .copilot-sheet{margin-top:28px;}
+  .copilot-case-layout{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:26px; align-items:start;}
+  .copilot-sheet .sheet-img{width:100%; margin:0; aspect-ratio:16/9; background:var(--paper-2);}
+  @media(max-width:760px){.copilot-case-layout{grid-template-columns:1fr;} #demo .demo-panel{padding:26px;} }
   .copilot-sheet .sheet-top{flex-wrap:wrap;}
   .copilot-sheet .sheet-tag{white-space:normal;}
   .copilot-sheet details{border-top:1px dashed var(--line); padding-top:14px; margin-top:18px;}
@@ -653,32 +658,7 @@
       </div>
 
 
-      <article class="sheet copilot-sheet" id="urban-planning-copilot" aria-labelledby="copilot-title">
-        <div class="sheet-img"><img src="assets/urban-planning-copilot/findings-preview.png" alt="Case-study tables: 59 of 59, 88 of 88 and 164 of 177 mapped destinations connect in the model at 300, 500 and 800 metres" loading="lazy" width="1200" height="675"></div>
-        <div class="sheet-top"><span class="sheet-tag">RESEARCH PROTOTYPE · GIS / NETWORK</span><span class="sheet-no">SHEET 16</span></div>
-        <h3 id="copilot-title">Urban Planning Copilot</h3>
-        <p><strong>Spatial Urban Assessment &amp; Decision-Support System</strong><br>Pedestrian access screening around Shahr-e Rey Square, Tehran.</p>
-        <p>Service counts alone cannot explain access. This case compares mapped destinations, modelled network connections and route distances across geometric buffers of 300, 500 and 800 metres, using existing OpenStreetMap-based outputs.</p>
-        <ul>
-          <li>500 m: 88/88 mapped destinations connect; mean network distance is 392 m.</li>
-          <li>800 m: 164/177 connect (92.7%); the cause of 13 non-connections is unknown.</li>
-          <li>Aggregate sidewalk-tag information is 1.1% known and 98.9% unknown by reported length.</li>
-        </ul>
-        <p class="evidence-note"><strong>Research limits:</strong> service completeness and physical route quality remain unknown. Field validation has not been performed; operational municipal readiness is not established. Unknown tags do not mean absent sidewalks.</p>
-        <details>
-          <summary>Method, demonstrated capabilities &amp; evidence limits</summary>
-          <p>Spatial and network analysis, scale comparison, denominator checks, provenance review and careful urban interpretation make the results reviewable by planners and GIS teams.</p>
-          <p>Connection ratios use all mapped destinations within each scale. Distance summaries use connected destinations only. A geometric radius is not a network-distance limit; network distance does not establish travel time or safety.</p>
-          <p>Legacy score 100 does not prove sidewalk quality. Empty diagnosis or recommendations do not establish absence of problems. Confidence values of 0.87 and 0.0 differ in the recorded artifact; the cause and resolution remain unproven. Historical ACCESSIBILITY golden equivalence and the scientific runtime version are not established.</p>
-          <p><strong>Next research check:</strong> review the origin and route to the taxi terminal, with reported direct/network distances of 61/433 m. Proposed outputs: photos, an annotated map and a model–observation comparison. This is not a prerequisite for presenting the current case.</p>
-          <p class="evidence-note">Existing outputs; recorded data capture: 2 October 2026 (cached). Documentation: 6 October 2026. No new analytical run. The preview is a presentation table, not a map.</p>
-        </details>
-        <div class="project-links" aria-label="Copilot case-study resources">
-          <a href="assets/urban-planning-copilot/STEP7F_SHAHRE_REY_PORTFOLIO.pdf" target="_blank" rel="noopener">Slides · PDF ↗</a>
-          <a href="assets/urban-planning-copilot/STEP7F_SHAHRE_REY_PORTFOLIO.pptx" download>PowerPoint ↓</a>
-          <a href="assets/urban-planning-copilot/STEP7D_SHAHRE_REY_CASE_STUDY.md" download>Case study · فارسی ↓</a>
-        </div>
-      </article>
+
 
     </div>
   </div>
@@ -718,17 +698,18 @@
 <section class="section" id="demo" style="border-bottom:none;">
   <div class="wrap">
     <div class="section-head">
-      <span class="section-tag">05 / IN PROGRESS</span>
+      <span class="section-tag">05 / RESEARCH TOOL</span>
       <h2 class="section-title">Urban Planning Copilot</h2>
-      <span class="section-sub mono">RESEARCH PROTOTYPE · LOOKUP DEMO</span>
+      <span class="section-sub mono">DEMO → CASE STUDY → EVIDENCE</span>
     </div>
+    <p class="copilot-intro">A research prototype for organising spatial assessment and expert review. The project began with place-name lookup and developed into a multi-scale network-access case study, with its evidence and limitations documented below.</p>
     <div class="demo-panel">
       <div class="demo-inner">
         <div class="demo-top">
-          <h3>Place → Coordinates</h3>
+          <h3>01 / Place → Coordinates</h3>
           <span class="status-dot"><i></i>LIVE DEMO</span>
         </div>
-        <p class="demo-desc">This browser widget demonstrates place-name lookup, candidate ranking and grouping of nearby OpenStreetMap results. It does not run the spatial assessment or reproduce the Shahr-e Rey case-study results. <a href="#urban-planning-copilot">View the research case study and its evidence limits ↑</a></p>
+        <p class="demo-desc">This browser widget demonstrates place-name lookup, candidate ranking and grouping of nearby OpenStreetMap results. It does not run the spatial assessment or reproduce the Shahr-e Rey case-study results. <a href="#urban-planning-copilot">Continue to the Shahr-e Rey case study ↓</a></p>
         <form class="geo-form" id="geoForm">
           <input type="text" id="geoInput" class="mono" placeholder="e.g. Valiasr Square, Tehran" autocomplete="off">
           <button type="submit" id="geoBtn">Locate</button>
@@ -736,9 +717,40 @@
         <div class="geo-results" id="geoResults">
           <span class="geo-hint">→ results will appear here</span>
         </div>
-        <p class="repo-note">main.py — queries OpenStreetMap's Nominatim API, matches the query against current/alt/old/historical names, scores each candidate, and groups duplicate OSM objects into one place. Next up: batch lookups and exporting results straight to GIS-ready formats.</p>
+        <p class="repo-note">Development stage: place lookup and candidate review. The browser demo queries Nominatim, matches names, ranks candidates and groups nearby OSM results. The research assessment uses separate spatial and network outputs; it is not executed by this widget.</p>
       </div>
     </div>
+
+      <article class="sheet copilot-sheet" id="urban-planning-copilot" aria-labelledby="copilot-title">
+        <div class="sheet-top"><span class="sheet-tag">RESEARCH PROTOTYPE · GIS / NETWORK</span><span class="sheet-no">02 / CASE STUDY</span></div>
+        <h3 id="copilot-title">Shahr-e Rey — pedestrian access screening</h3>
+        <div class="copilot-case-layout">
+          <div><div class="sheet-img"><img src="assets/urban-planning-copilot/findings-preview.png" alt="Case-study tables: 59 of 59, 88 of 88 and 164 of 177 mapped destinations connect in the model at 300, 500 and 800 metres" loading="lazy" width="1200" height="675"></div></div>
+          <div>
+        <p><strong>Spatial Urban Assessment &amp; Decision-Support System</strong><br>Pedestrian access screening around Shahr-e Rey Square, Tehran.</p>
+        <p>Service counts alone cannot explain access. This case compares mapped destinations, modelled network connections and route distances across geometric buffers of 300, 500 and 800 metres, using existing OpenStreetMap-based outputs.</p>
+        <ul>
+          <li>500 m: 88/88 mapped destinations connect; mean network distance is 392 m.</li>
+          <li>800 m: 164/177 connect (92.7%); the cause of 13 non-connections is unknown.</li>
+          <li>Aggregate sidewalk-tag information is 1.1% known and 98.9% unknown by reported length.</li>
+        </ul>
+        <p class="evidence-note"><strong>Research limits:</strong> service completeness and physical route quality remain unknown. Field validation has not been performed; operational municipal readiness is not established. Unknown tags do not mean absent sidewalks.</p>
+          </div>
+        </div>
+        <details>
+          <summary>Method, demonstrated capabilities &amp; evidence limits</summary>
+          <p>Spatial and network analysis, scale comparison, denominator checks, provenance review and careful urban interpretation make the results reviewable by planners and GIS teams.</p>
+          <p>Connection ratios use all mapped destinations within each scale. Distance summaries use connected destinations only. A geometric radius is not a network-distance limit; network distance does not establish travel time or safety.</p>
+          <p>Legacy score 100 does not prove sidewalk quality. Empty diagnosis or recommendations do not establish absence of problems. Confidence values of 0.87 and 0.0 differ in the recorded artifact; the cause and resolution remain unproven. Historical ACCESSIBILITY golden equivalence and the scientific runtime version are not established.</p>
+          <p><strong>Next research check:</strong> review the origin and route to the taxi terminal, with reported direct/network distances of 61/433 m. Proposed outputs: photos, an annotated map and a model–observation comparison. This is not a prerequisite for presenting the current case.</p>
+          <p class="evidence-note">Existing outputs; recorded data capture: 2 October 2026 (cached). Documentation: 6 October 2026. No new analytical run. The preview is a presentation table, not a map.</p>
+        </details>
+        <div class="project-links" aria-label="Copilot case-study resources">
+          <a href="assets/urban-planning-copilot/STEP7F_SHAHRE_REY_PORTFOLIO.pdf" target="_blank" rel="noopener">Slides · PDF ↗</a>
+          <a href="assets/urban-planning-copilot/STEP7F_SHAHRE_REY_PORTFOLIO.pptx" download>PowerPoint ↓</a>
+          <a href="assets/urban-planning-copilot/STEP7D_SHAHRE_REY_CASE_STUDY.md" download>Case study · فارسی ↓</a>
+        </div>
+      </article>
   </div>
 </section>
 
